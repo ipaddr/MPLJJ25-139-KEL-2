@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+
+// Import dashboard sesuai role
 import 'package:sekolahunggulintegrasi/presentasion/pages/Admin/dashboard_admin.dart';
 import 'package:sekolahunggulintegrasi/presentasion/pages/DinasPendidikan/dashboard_dinas.dart';
 import 'package:sekolahunggulintegrasi/presentasion/pages/Sekolah/dashboard_sekolah.dart';
-
-// Import semua dashboard sesuai role
-
-
-
+import 'package:sekolahunggulintegrasi/presentasion/pages/Pelaksana/dashboard_pelaksana.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/Auditor/dashboard_auditor.dart'; 
 
 class LoginScreen extends StatefulWidget {
   final String role;
@@ -26,7 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text.trim();
     final role = widget.role;
 
-    // Simulasi login sederhana
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Email dan password tidak boleh kosong')),
@@ -34,31 +32,37 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    // Navigasi ke dashboard berdasarkan role
+    // Navigasi berdasarkan role
+    Widget? destination;
+    switch (role) {
+      case 'Admin':
+        destination = const DashboardAdmin();
+        break;
+      case 'Dinas':
+        destination = const DashboardDinas();
+        break;
+      case 'Sekolah':
+        destination = const DashboardSekolah();
+        break;
+      case 'Pelaksana':
+        destination = const DashboardPelaksana();
+        break;
+      case 'Auditor':
+        destination = const DashboardAuditor(); 
+        break;
+      default:
+        destination = null;
+    }
 
-    if (role == 'Sekolah') {
+    if (destination != null) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const DashboardSekolah()),
-      );
-    } else if (role == 'Dinas') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const DashboardDinas(),
-        ), // Asumsikan ada DashboardDinas
-      );
-    }else if (role == 'Admin') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const DashboardAdmin(),
-        ), // Asumsikan ada DashboardDinas
+        MaterialPageRoute(builder: (_) => destination!),
       );
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Role tidak dikenal')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Role tidak dikenal')),
+      );
     }
   }
 
