@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sekolah/presentasion/pages/Sekolah/status_proposal.dart';
-import 'package:sekolah/presentasion/pages/Sekolah/identitas_sekolah.dart';
-import 'package:sekolah/presentasion/pages/Sekolah/pengajuan_proposal.dart';
-import 'package:sekolah/presentasion/pages/Sekolah/profil_sekolah.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/Sekolah/status_proposal.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/Sekolah/identitas_sekolah.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/Sekolah/pengajuan_proposal.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/Sekolah/profil_sekolah.dart';
 
 class DashboardSekolah extends StatefulWidget {
   const DashboardSekolah({super.key});

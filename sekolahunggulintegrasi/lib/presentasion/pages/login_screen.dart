@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sekolah/presentasion/pages/Admin/dashboard_admin.dart';
-import 'package:sekolah/presentasion/pages/DinasPendidikan/dashboard_dinas.dart';
-import 'package:sekolah/presentasion/pages/Sekolah/dashboard_sekolah.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/Admin/dashboard_admin.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/DinasPendidikan/dashboard_dinas.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/Sekolah/dashboard_sekolah.dart';
 
 // Import semua dashboard sesuai role
 

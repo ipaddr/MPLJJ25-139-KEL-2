@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sekolah/presentasion/pages/Admin/kelola_pengguna.dart';
-import 'package:sekolah/presentasion/pages/Admin/laporan_statistik.dart';
-import 'package:sekolah/presentasion/pages/Admin/profile.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/Admin/kelola_pengguna.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/Admin/laporan_statistik.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/Admin/profile.dart';
+
 
 class DashboardAdmin extends StatefulWidget {
   const DashboardAdmin({super.key});

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sekolah/presentasion/pages/role_screen.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/role_screen.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});

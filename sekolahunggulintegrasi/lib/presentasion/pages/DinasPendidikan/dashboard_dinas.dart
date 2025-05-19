@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 // Import halaman lain sesuai project kamu
-import 'package:sekolah/presentasion/pages/DinasPendidikan/approval_proposal.dart';
-import 'package:sekolah/presentasion/pages/DinasPendidikan/monitoring_wilayah.dart';
-import 'package:sekolah/presentasion/pages/DinasPendidikan/validasi_sekolah.dart';
-import 'package:sekolah/presentasion/pages/DinasPendidikan/Profile.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/DinasPendidikan/approval_proposal.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/DinasPendidikan/monitoring_wilayah.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/DinasPendidikan/validasi_sekolah.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/DinasPendidikan/Profile.dart';
 
 void main() {
   runApp(const MaterialApp(

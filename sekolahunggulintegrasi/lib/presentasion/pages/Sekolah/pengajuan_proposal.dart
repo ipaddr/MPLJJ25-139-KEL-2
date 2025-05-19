@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:sekolah/presentasion/pages/Sekolah/pengajuan_berhasil.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/Sekolah/pengajuan_berhasil.dart';
 
 
 class PengajuanProposalPage extends StatefulWidget {

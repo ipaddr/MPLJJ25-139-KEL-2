@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sekolah/presentasion/pages/home_screen.dart';
+import 'package:sekolahunggulintegrasi/presentasion/pages/home_screen.dart';
 // import halaman lain jika sudah dibuat
 
 class AppRoutes {
