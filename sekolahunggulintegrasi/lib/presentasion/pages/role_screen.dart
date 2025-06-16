@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/login_screen.dart'; // Pastikan import sesuai lokasi file LoginScreen
+import 'package:sekolah/presentasion/pages/login_screen.dart'; // Pastikan import sesuai lokasi file LoginScreen
 
 class RoleScreen extends StatelessWidget {
   RoleScreen({super.key});

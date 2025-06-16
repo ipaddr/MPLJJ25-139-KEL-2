@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/DinasPendidikan/detail.dart';
+import 'package:sekolah/presentasion/pages/DinasPendidikan/detail.dart';
 
 class Monitoringwilayah extends StatefulWidget {
   const Monitoringwilayah({super.key});

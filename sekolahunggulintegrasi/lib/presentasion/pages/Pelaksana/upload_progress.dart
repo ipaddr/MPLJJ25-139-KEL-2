@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class UploadProgress extends StatefulWidget {
   const UploadProgress({super.key});
@@ -13,47 +16,86 @@ class _UploadProgressState extends State<UploadProgress> {
   final TextEditingController keuanganController = TextEditingController();
   final TextEditingController catatanController = TextEditingController();
 
-  // Simulasi file upload (nantinya bisa gunakan image_picker)
-  String? _uploadedFileName;
+  XFile? _selectedFile;
+  final ImagePicker _picker = ImagePicker();
 
-  void _pickFile() {
-    // Placeholder action — nanti diganti dengan file picker atau image picker
-    setState(() {
-      _uploadedFileName = 'dokumentasi_foto_1.jpg';
-    });
+  Future<void> _pickFile() async {
+    try {
+      final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
+      if (file != null) {
+        setState(() {
+          _selectedFile = file;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal memilih file: $e')),
+      );
+    }
   }
 
-  void _submit() {
-    // Simulasi pengiriman data
-    final data = {
-      "minggu": mingguController.text,
-      "fisik": fisikController.text,
-      "keuangan": keuanganController.text,
-      "catatan": catatanController.text,
-      "foto": _uploadedFileName ?? 'Belum diunggah'
-    };
-
+  Future<void> _submit() async {
     // Validasi sederhana
-    if (data.values.any((value) => value.isEmpty)) {
+    if (mingguController.text.isEmpty ||
+        fisikController.text.isEmpty ||
+        keuanganController.text.isEmpty ||
+        _selectedFile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Mohon lengkapi semua data.')),
       );
       return;
     }
 
-    // Simulasi kirim
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Progress berhasil dikirim!')),
-    );
+    final fisik = double.tryParse(fisikController.text);
+    final keuangan = double.tryParse(keuanganController.text);
+    if (fisik == null || keuangan == null || fisik < 0 || fisik > 100 || keuangan < 0 || keuangan > 100) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Progress harus antara 0 dan 100.')),
+      );
+      return;
+    }
 
-    // Clear field setelah submit
-    mingguController.clear();
-    fisikController.clear();
-    keuanganController.clear();
-    catatanController.clear();
-    setState(() {
-      _uploadedFileName = null;
-    });
+    // Kirim data ke backend
+    try {
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('http://192.168.18.217:3000/api/progress'),
+      );
+
+      // Tambahkan field teks
+      request.fields['minggu'] = mingguController.text;
+      request.fields['fisik'] = fisikController.text;
+      request.fields['keuangan'] = keuanganController.text;
+      request.fields['catatan'] = catatanController.text;
+
+      // Tambahkan file foto
+      request.files.add(
+        await http.MultipartFile.fromPath('foto', _selectedFile!.path),
+      );
+
+      final response = await request.send();
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Progress berhasil dikirim!')),
+        );
+        // Clear field setelah submit
+        mingguController.clear();
+        fisikController.clear();
+        keuanganController.clear();
+        catatanController.clear();
+        setState(() {
+          _selectedFile = null;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal mengirim progress: ${response.statusCode}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
   }
 
   @override
@@ -83,7 +125,7 @@ class _UploadProgressState extends State<UploadProgress> {
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
                   labelText: 'Progress Fisik (%)',
-                  hintText: 'Contoh : 55',
+                  hintText: 'Contoh: 55',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -93,7 +135,7 @@ class _UploadProgressState extends State<UploadProgress> {
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
                   labelText: 'Progress Keuangan (%)',
-                  hintText: 'Contoh : 80',
+                  hintText: 'Contoh: 80',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -109,7 +151,7 @@ class _UploadProgressState extends State<UploadProgress> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        _uploadedFileName ?? 'Belum ada file',
+                        _selectedFile != null ? _selectedFile!.name : 'Belum ada file',
                         style: const TextStyle(color: Colors.black54),
                       ),
                       const Icon(Icons.upload_file, color: Colors.blue),

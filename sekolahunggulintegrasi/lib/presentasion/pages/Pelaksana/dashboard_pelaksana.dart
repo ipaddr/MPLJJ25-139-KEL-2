@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/Pelaksana/proyek_saya.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/Pelaksana/upload_progress.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/Pelaksana/laporan_mingguan.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/pelaksana/profil_pelaksana_page.dart';
+import 'package:sekolah/presentasion/pages/Pelaksana/proyek_saya.dart';
+import 'package:sekolah/presentasion/pages/Pelaksana/upload_progress.dart';
+import 'package:sekolah/presentasion/pages/Pelaksana/laporan_mingguan.dart';
+import 'package:sekolah/presentasion/pages/pelaksana/profil_pelaksana_page.dart';
 
 class DashboardPelaksana extends StatefulWidget {
   const DashboardPelaksana({super.key});

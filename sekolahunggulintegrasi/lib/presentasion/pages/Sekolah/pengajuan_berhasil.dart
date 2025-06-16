@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/Sekolah/status_proposal.dart';
+import 'package:sekolah/presentasion/pages/Sekolah/status_proposal.dart';
 
 class PengajuanBerhasil extends StatefulWidget {
   const PengajuanBerhasil({super.key});

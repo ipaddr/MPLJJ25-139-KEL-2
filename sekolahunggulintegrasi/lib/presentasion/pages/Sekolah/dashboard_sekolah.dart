@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/Sekolah/status_proposal.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/Sekolah/identitas_sekolah.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/Sekolah/pengajuan_proposal.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/Sekolah/profil_sekolah.dart';
+import 'package:sekolah/presentasion/pages/Sekolah/StatusSekolah.dart';
+import 'package:sekolah/presentasion/pages/Sekolah/status_proposal.dart';
+import 'package:sekolah/presentasion/pages/Sekolah/identitas_sekolah.dart';
+import 'package:sekolah/presentasion/pages/Sekolah/pengajuan_proposal.dart';
+import 'package:sekolah/presentasion/pages/Sekolah/profil_sekolah.dart';
+
 
 class DashboardSekolah extends StatefulWidget {
   const DashboardSekolah({super.key});
@@ -119,7 +121,7 @@ class DashboardContent extends StatelessWidget {
             },
             height: 80.0,
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 30),
           dashboardButton(
             title: '📌 Status Proposal',
             color: Colors.orange[600]!,
@@ -127,6 +129,18 @@ class DashboardContent extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const StatusProposal()),
+              );
+            },
+            height: 80.0,
+          ),
+          const SizedBox(height: 30),
+          dashboardButton(
+            title: '📊 Status Verifikasi Sekolah',
+            color: Colors.blue[600]!,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const StatusSekolah()),
               );
             },
             height: 80.0,
@@ -169,4 +183,3 @@ Widget dashboardButton({
     ),
   );
 }
-

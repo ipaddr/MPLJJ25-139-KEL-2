@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LaporanStatistik extends StatefulWidget {
   const LaporanStatistik({super.key});
@@ -8,8 +10,49 @@ class LaporanStatistik extends StatefulWidget {
 }
 
 class _LaporanStatistikState extends State<LaporanStatistik> {
+  List<dynamic> proyekData = [];
+  List<dynamic> auditData = [];
+  List<dynamic> progressData = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    try {
+      // Ambil data dari API
+      final proyekResponse = await http.get(Uri.parse('http://192.168.18.217:3000/api/proyek'));
+      final auditResponse = await http.get(Uri.parse('http://192.168.18.217:3000/api/audit'));
+      final progressResponse = await http.get(Uri.parse('http://192.168.18.217:3000/api/proyek'));
+
+      if (proyekResponse.statusCode == 200 &&
+          auditResponse.statusCode == 200 &&
+          progressResponse.statusCode == 200) {
+        setState(() {
+          proyekData = json.decode(proyekResponse.body);
+          auditData = json.decode(auditResponse.body);
+          progressData = json.decode(progressResponse.body);
+          print('Progress Data: $progressData'); // Debugging
+        });
+      } else {
+        throw Exception('Gagal memuat data: Status code ${proyekResponse.statusCode}, ${auditResponse.statusCode}, ${progressResponse.statusCode}');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Hitung statistik proyek
+    int aktifCount = proyekData.where((item) => item['status']?.toLowerCase() == 'aktif').length;
+    int selesaiCount = proyekData.where((item) => item['status']?.toLowerCase() == 'selesai').length;
+    int tundaCount = proyekData.where((item) => item['status']?.toLowerCase() == 'tunda').length;
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: SingleChildScrollView(
@@ -43,7 +86,7 @@ class _LaporanStatistikState extends State<LaporanStatistik> {
             // Statistik Proyek
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: _buildStatistikProyek(),
+              child: _buildStatistikProyek(aktifCount, selesaiCount, tundaCount),
             ),
 
             // Laporan Keuangan
@@ -63,7 +106,7 @@ class _LaporanStatistikState extends State<LaporanStatistik> {
     );
   }
 
-  Widget _buildStatistikProyek() {
+  Widget _buildStatistikProyek(int aktifCount, int selesaiCount, int tundaCount) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -78,11 +121,11 @@ class _LaporanStatistikState extends State<LaporanStatistik> {
           ],
         ),
         const SizedBox(height: 12),
-        _buildStatCard('Proyek Aktif', '5 Proyek', Colors.blue),
+        _buildStatCard('Proyek Aktif', '$aktifCount Proyek', Colors.blue),
         const SizedBox(height: 8),
-        _buildStatCard('Proyek Selesai', '7 Proyek', Colors.blue),
+        _buildStatCard('Proyek Selesai', '$selesaiCount Proyek', Colors.blue),
         const SizedBox(height: 8),
-        _buildStatCard('Proyek Tunda', '7 Proyek', Colors.blue),
+        _buildStatCard('Proyek Tunda', '$tundaCount Proyek', Colors.blue),
       ],
     );
   }
@@ -217,19 +260,17 @@ class _LaporanStatistikState extends State<LaporanStatistik> {
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children: [
-                      _buildFinanceRow(
-                        'Proyek SMP Kenangan Jaya',
-                        'Rp 150.000.000',
-                        'Rp 105.000.000',
-                        'Rp 45.000.000',
-                      ),
-                      const Divider(),
-                      _buildFinanceRow(
-                        'Proyek SDK Kasehatan',
-                        'Rp 250.000.000',
-                        'Rp 220.000.000',
-                        'Rp 30.000.000',
-                      ),
+                      ...auditData.map((item) => Column(
+                            children: [
+                              _buildFinanceRow(
+                                item['namaProyek']?.toString() ?? '',
+                                _formatRupiah(item['danaAwal'] ?? 0),
+                                _formatRupiah(item['totalPengeluaran'] ?? 0),
+                                _calculateRemaining(item['danaAwal'] ?? 0, item['totalPengeluaran'] ?? 0),
+                              ),
+                              const Divider(),
+                            ],
+                          )),
                     ],
                   ),
                 ),
@@ -239,6 +280,23 @@ class _LaporanStatistikState extends State<LaporanStatistik> {
         ),
       ],
     );
+  }
+
+  String _formatRupiah(num amount) {
+    // Konversi ke string dengan pemisah ribuan
+    return 'Rp ${amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')}';
+  }
+
+  String _calculateRemaining(num danaAwal, num totalPengeluaran) {
+    // Konversi num ke double secara eksplisit
+    double danaAwalDouble = (danaAwal is int) ? danaAwal.toDouble() : (danaAwal as double);
+    double totalPengeluaranDouble = (totalPengeluaran is int) ? totalPengeluaran.toDouble() : (totalPengeluaran as double);
+
+    // Hitung sisa dana
+    double remainingValue = danaAwalDouble - totalPengeluaranDouble;
+
+    // Konversi kembali ke format Rupiah dengan pemisah ribuan
+    return 'Rp ${remainingValue.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')}';
   }
 
   Widget _buildFinanceRow(
@@ -304,7 +362,7 @@ class _LaporanStatistikState extends State<LaporanStatistik> {
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         child: const Text(
-                          'Nama Proyek',
+                          'Nama Sekolah',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -317,7 +375,21 @@ class _LaporanStatistikState extends State<LaporanStatistik> {
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         child: const Text(
-                          'Progres (%)',
+                          'Progres Fisik (%)',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        child: const Text(
+                          'Progres Keuangan (%)',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -351,13 +423,23 @@ class _LaporanStatistikState extends State<LaporanStatistik> {
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children: [
-                      _buildProgressRow(
-                        'Proyek SMP Kenangan Jaya',
-                        75,
-                        'Berjalan',
-                      ),
-                      const Divider(),
-                      _buildProgressRow('Proyek SDK Kasehatan', 90, 'Selesai'),
+                      if (progressData.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('Tidak ada data progres.'),
+                        )
+                      else
+                        ...progressData.map((item) => Column(
+                              children: [
+                                _buildProgressRow(
+                                  item['namaSekolah']?.toString() ?? '',
+                                  (item['progressFisik'] ?? 0).toDouble() * 100,
+                                  (item['progressKeuangan'] ?? 0).toDouble() * 100,
+                                  item['status']?.toString() ?? '',
+                                ),
+                                const Divider(),
+                              ],
+                            )),
                     ],
                   ),
                 ),
@@ -369,8 +451,8 @@ class _LaporanStatistikState extends State<LaporanStatistik> {
     );
   }
 
-  Widget _buildProgressRow(String projectName, int progress, String status) {
-    Color statusColor = status == 'Berjalan' ? Colors.blue : Colors.green;
+  Widget _buildProgressRow(String namaSekolah, num progressFisik, num progressKeuangan, String status) {
+    Color statusColor = status == 'Berlangsung' ? Colors.blue : Colors.green;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -379,13 +461,17 @@ class _LaporanStatistikState extends State<LaporanStatistik> {
           Expanded(
             flex: 2,
             child: Text(
-              projectName,
+              namaSekolah,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
           Expanded(
             flex: 1,
-            child: Text('$progress%', textAlign: TextAlign.center),
+            child: Text('${progressFisik.toStringAsFixed(0)}%', textAlign: TextAlign.center),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text('${progressKeuangan.toStringAsFixed(0)}%', textAlign: TextAlign.center),
           ),
           Expanded(
             flex: 1,

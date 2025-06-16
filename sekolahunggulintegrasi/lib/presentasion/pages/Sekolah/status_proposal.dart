@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:sekolah/models/proposal.dart'; // Pastikan path sesuai
 
 class StatusProposal extends StatefulWidget {
   const StatusProposal({super.key});
@@ -8,33 +11,86 @@ class StatusProposal extends StatefulWidget {
 }
 
 class _StatusProposalState extends State<StatusProposal> {
-  // Data dummy untuk daftar proposal (bisa diganti dengan data dari API atau database)
-  final List<Map<String, dynamic>> proposals = [
-    {
-      'title': 'Renovasi Ruang Kelas',
-      'date': 'Dikirim 20 Apr 2025',
-      'status': 'Dikirim ke Dinas',
-      'statusColor': Colors.cyan,
-    },
-    {
-      'title': 'Renovasi Ruang Kelas',
-      'date': 'Dikirim 21 Apr 2025',
-      'status': 'Disetujui',
-      'statusColor': Colors.yellow,
-    },
-    {
-      'title': 'Renovasi Ruang Kelas',
-      'date': 'Dikirim 22 Apr 2025',
-      'status': 'Ditolak',
-      'statusColor': Colors.red,
-    },
-  ];
+  List<Proposal> proposals = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProposals();
+  }
+
+  Future<void> fetchProposals() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://192.168.18.217:3000/api/all-proposals'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          proposals = data.map((json) => Proposal.fromJson(json)).toList();
+          isLoading = false;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Gagal memuat daftar proposal: ${response.statusCode}',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Terjadi kesalahan: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  // Fungsi untuk menentukan warna berdasarkan status
+  Color getStatusColor(String status) {
+    switch (status) {
+      case 'Menunggu':
+        return Colors.cyan; // Biru muda untuk "Dikirim ke Dinas"
+      case 'Disetujui':
+        return Colors.green; // Hijau untuk "Disetujui"
+      case 'Ditolak':
+        return Colors.red; // Merah untuk "Ditolak"
+      default:
+        return Colors.grey; // Abu-abu untuk status lain
+    }
+  }
+
+  // Fungsi untuk menentukan teks status
+  String getStatusText(String status) {
+    switch (status) {
+      case 'Menunggu':
+        return 'Dikirim ke Dinas';
+      case 'Disetujui':
+        return 'Disetujui';
+      case 'Ditolak':
+        return 'Ditolak';
+      default:
+        return 'Tidak Diketahui';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Status Proposal Renovasi'),
+        title: const Text('Status Proposal Renovasi'),
         backgroundColor: Colors.blue,
       ),
       body: Padding(
@@ -42,76 +98,92 @@ class _StatusProposalState extends State<StatusProposal> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Berikut adalah daftar proposal yang pernah diajukan:',
               style: TextStyle(fontSize: 16),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Expanded(
-              child: ListView.builder(
-                itemCount: proposals.length,
-                itemBuilder: (context, index) {
-                  final proposal = proposals[index];
-                  return Card(
-                    margin: EdgeInsets.only(bottom: 12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                proposal['title'],
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
+              child:
+                  isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : proposals.isEmpty
+                      ? const Center(
+                        child: Text('Tidak ada proposal yang diajukan.'),
+                      )
+                      : ListView.builder(
+                        itemCount: proposals.length,
+                        itemBuilder: (context, index) {
+                          final proposal = proposals[index];
+                          final statusText = getStatusText(proposal.status);
+                          final statusColor = getStatusColor(proposal.status);
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        proposal.judulProposal,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Dikirim ${proposal.createdAt.day} ${_getMonthName(proposal.createdAt.month)} ${proposal.createdAt.year}',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      _showStatusDialog(context, statusText);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: statusColor,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      statusText,
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              SizedBox(height: 4),
-                              Text(
-                                proposal['date'],
-                                style: TextStyle(fontSize: 14, color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              // Logika untuk melihat detail status
-                              _showStatusDialog(context, proposal['status']);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: proposal['statusColor'],
-                              padding: EdgeInsets.symmetric(horizontal: 12),
                             ),
-                            child: Text(
-                              proposal['status'],
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    ),
-                  );
-                },
-              ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             OutlinedButton(
               onPressed: () {
                 Navigator.pop(context);
               },
               style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 14),
-                side: BorderSide(color: Colors.blue),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                side: const BorderSide(color: Colors.blue),
               ),
-              child: Center(child: Text('Kembali')),
+              child: const Center(child: Text('Kembali')),
             ),
           ],
         ),
       ),
-      
     );
   }
 
@@ -120,18 +192,36 @@ class _StatusProposalState extends State<StatusProposal> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Detail Status Proposal'),
+          title: const Text('Detail Status Proposal'),
           content: Text('Status proposal saat ini: $status'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Tutup'),
+              child: const Text('Tutup'),
             ),
           ],
         );
       },
     );
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
+    ];
+    return months[month - 1];
   }
 }

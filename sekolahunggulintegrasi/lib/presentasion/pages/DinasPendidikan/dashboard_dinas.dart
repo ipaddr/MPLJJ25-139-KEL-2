@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:sekolah/presentasion/pages/DinasPendidikan/RiwayatValidasi.dart';
 
 // Import halaman lain sesuai project kamu
-import 'package:sekolahunggulintegrasi/presentasion/pages/DinasPendidikan/approval_proposal.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/DinasPendidikan/monitoring_wilayah.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/DinasPendidikan/validasi_sekolah.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/DinasPendidikan/Profile.dart';
+import 'package:sekolah/presentasion/pages/DinasPendidikan/approval_proposal.dart';
+import 'package:sekolah/presentasion/pages/DinasPendidikan/monitoring_wilayah.dart';
+import 'package:sekolah/presentasion/pages/DinasPendidikan/validasi_sekolah.dart';
+// Tambahkan import ini
+import 'package:sekolah/presentasion/pages/DinasPendidikan/Profile.dart';
 
 void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: DashboardDinas(),
-  ));
+  runApp(
+    const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: DashboardDinas(),
+    ),
+  );
 }
 
 class DashboardDinas extends StatefulWidget {
@@ -24,11 +28,11 @@ class _DashboardDinasState extends State<DashboardDinas> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    const DashboardContent(),       // 0: Home
-    const Validasisekolah(),        // 1: Validasi Sekolah
-    const Approvalproposal(),       // 2: Approval Proposal
-    const Monitoringwilayah(),      // 3: Monitoring Wilayah
-    const Profile(),            // 4: Profile
+    const DashboardContent(), // 0: Home
+    const Validasisekolah(), // 1: Validasi Sekolah
+    const ApprovalProposal(), // 2: Approval Proposal
+    const Monitoringwilayah(), // 3: Monitoring Wilayah
+    const Profile(), // 4: Profile
   ];
 
   void _onItemTapped(int index) {
@@ -56,7 +60,10 @@ class _DashboardDinasState extends State<DashboardDinas> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.check_circle), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.insert_drive_file), label: ''),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.insert_drive_file),
+            label: '',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.location_on), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
         ],
@@ -79,7 +86,10 @@ PreferredSizeWidget buildAppBar() {
       children: [
         Icon(Icons.school, color: Colors.white),
         SizedBox(width: 8),
-        Text('Dashboard Sekolah', style: TextStyle(color: Colors.white)),
+        Text(
+          'Dashboard Dinas Pendidikan',
+          style: TextStyle(color: Colors.white),
+        ),
       ],
     ),
     bottom: const PreferredSize(
@@ -87,7 +97,7 @@ PreferredSizeWidget buildAppBar() {
       child: Padding(
         padding: EdgeInsets.all(8.0),
         child: Text(
-          'Selamat datang, silakan kelola informasi sekolah Anda',
+          'Selamat datang, silakan monitoring sekolah disini ',
           style: TextStyle(color: Colors.white70),
         ),
       ),
@@ -165,6 +175,7 @@ class DashboardContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Baris pertama: 3 tombol
           Row(
             children: [
               buildButton(
@@ -188,7 +199,7 @@ class DashboardContent extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const Approvalproposal(),
+                      builder: (context) => const ApprovalProposal(),
                     ),
                   );
                 },
@@ -202,6 +213,24 @@ class DashboardContent extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => const Monitoringwilayah(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          // Baris kedua: Tombol Riwayat Validasi
+          Row(
+            children: [
+              buildButton(
+                'Riwayat\nValidasi',
+                Colors.blue.shade700, // Warna berbeda untuk membedakan
+                Icons.history,
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RiwayatValidasi(),
                     ),
                   );
                 },

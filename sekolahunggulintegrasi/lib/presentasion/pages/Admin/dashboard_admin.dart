@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/Admin/kelola_pengguna.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/Admin/laporan_statistik.dart';
-import 'package:sekolahunggulintegrasi/presentasion/pages/Admin/profile.dart';
-
+import 'package:sekolah/presentasion/pages/Admin/kelola_pengguna.dart';
+import 'package:sekolah/presentasion/pages/Admin/laporan_statistik.dart';
+import 'package:sekolah/presentasion/pages/Admin/profile.dart';
 
 class DashboardAdmin extends StatefulWidget {
-  const DashboardAdmin({super.key});
+  final String token; // Tambahkan parameter token
+
+  const DashboardAdmin({super.key, required this.token});
 
   @override
   State<DashboardAdmin> createState() => _DashboardAdminState();
@@ -14,12 +15,13 @@ class DashboardAdmin extends StatefulWidget {
 class _DashboardAdminState extends State<DashboardAdmin> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [
-    _DashboardContent(),
-    const KelolaPengguna(),
-    const LaporanStatistik(),
-    const Profile(), // Placeholder
-  ];
+  // Inisialisasi dinamis di build agar widget.token bisa diakses
+  List<Widget> get _pages => [
+        _DashboardContent(),
+        KelolaPengguna(token: widget.token), // Menggunakan getter untuk akses token
+        const LaporanStatistik(),
+        const Profile(), // Placeholder
+      ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -125,7 +127,7 @@ class _DashboardContent extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const KelolaPengguna()),
+                  MaterialPageRoute(builder: (_) => KelolaPengguna(token: (context as Element).findAncestorStateOfType<_DashboardAdminState>()!.widget.token)),
                 );
               },
             ),
